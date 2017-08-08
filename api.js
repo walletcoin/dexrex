@@ -108,7 +108,7 @@ API.init = function init(callback, allContracts, path, provider, configName, loo
         (callbackSeries) => {
           API.logs(() => {
             callbackSeries(null, true);
-          },lookbackIn);
+          }, lookbackIn);
         },
       ],
       () => {
