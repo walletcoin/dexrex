@@ -458,7 +458,7 @@ API.getDivisor = function getDivisor(tokenOrAddress) {
 
 API.getTokenByAddr = function getTokenByAddr(addr, callback) {
   let token;
-  const matchingTokens = this.config.tokens.filter(x => x.addr === addr || x.symbol === addr);
+  const matchingTokens = this.config.tokens.filter(x => x.addr === addr || x.name === addr);
   if (matchingTokens.length > 0) {
     token = matchingTokens[0];
     callback(token);
@@ -467,9 +467,9 @@ API.getTokenByAddr = function getTokenByAddr(addr, callback) {
     token.addr = addr;
     this.utility.call(this.web3, this.contractToken, token.addr, 'decimals', [], (errDecimals, resultDecimals) => {
       if (!errDecimals && resultDecimals >= 0) token.decimals = resultDecimals.toNumber();
-      this.utility.call(this.web3, this.contractToken, token.addr, 'symbol', [], (errSymbol, resultSymbol) => {
-        if (!errSymbol && resultSymbol) {
-          token.symbol = resultSymbol;
+      this.utility.call(this.web3, this.contractToken, token.addr, 'name', [], (errName, resultName) => {
+        if (!errName && resultName) {
+          token.name = resultName;
         } else {
           token.name = token.addr.slice(2, 6);
         }
@@ -482,25 +482,24 @@ API.getTokenByAddr = function getTokenByAddr(addr, callback) {
   }
 };
 
-API.getToken = function getToken(addrOrToken, symbol, name, decimals) {
+API.getToken = function getToken(addrOrToken, name, decimals) {
   let result;
   const matchingTokens = this.config.tokens.filter(
     x => x.addr === addrOrToken ||
-    x.symbol === addrOrToken);
+    x.name === addrOrToken);
   const expectedKeys = JSON.stringify([
     'addr',
     'decimals',
-    'symbol',
     'name',
   ]);
   if (matchingTokens.length > 0) {
     result = matchingTokens[0];
   } else if (addrOrToken.addr && JSON.stringify(Object.keys(addrOrToken).sort()) === expectedKeys) {
     result = addrOrToken;
-  } else if (addrOrToken.slice(0, 2) === '0x' && symbol && decimals >= 0) {
+  } else if (addrOrToken.slice(0, 2) === '0x' && name && decimals >= 0) {
     result = JSON.parse(JSON.stringify(this.config.tokens[0]));
     result.addr = addrOrToken;
-    result.symbol = symbol;
+    result.name = name;
     result.decimals = decimals;
   }
   return result;
@@ -1006,7 +1005,7 @@ API.returnTicker = function returnTicker(callback) {
     trades.sort((a, b) => a.blockNumber - b.blockNumber);
     trades.forEach((trade) => {
       if (trade.token && trade.base && trade.base.name === 'ETH') {
-        const pair = `${trade.base.name}_${trade.token.symbol}`;
+        const pair = `${trade.base.name}_${trade.token.name}`;
         if (!tickers[pair]) {
           tickers[pair] = { last: undefined, percentChange: 0, baseVolume: 0, quoteVolume: 0 };
         }
