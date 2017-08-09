@@ -467,7 +467,7 @@ API.getTokenByAddr = function getTokenByAddr(addr, callback) {
     token.addr = addr;
     this.utility.call(this.web3, this.contractToken, token.addr, 'decimals', [], (errDecimals, resultDecimals) => {
       if (!errDecimals && resultDecimals >= 0) token.decimals = resultDecimals.toNumber();
-      this.utility.call(this.web3, this.contractToken, token.addr, 'name', [], (errName, resultName) => {
+      this.utility.call(this.web3, this.contractToken, token.addr, 'symbol', [], (errName, resultName) => {
         if (!errName && resultName) {
           token.name = resultName;
         } else {
