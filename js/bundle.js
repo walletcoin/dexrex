@@ -1344,7 +1344,6 @@ module.exports = {
     { token: 'AMIS', base: 'ETH' },
   ],
 };
-};
 },{}],3:[function(require,module,exports){
 /* eslint-env browser */
 
