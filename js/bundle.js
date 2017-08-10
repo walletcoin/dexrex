@@ -2257,7 +2257,7 @@ function candlestickChart(elem, title, xtitle, ytitle, data, minValue, maxValue)
           enableInteractivity: true,
           title,
           candlestick: {
-            fallingColor: { strokeWidth: 0, fill: '#f00' },
+            fallingColor: { strokeWidth: 0, fill: '#E85A4F' },
             risingColor: { strokeWidth: 0, fill: '#0f0' },
           },
         };
