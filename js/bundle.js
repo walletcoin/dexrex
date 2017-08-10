@@ -1344,7 +1344,6 @@ module.exports = {
     { token: 'AMIS', base: 'ETH' },
   ],
 };
-};
 },{}],3:[function(require,module,exports){
 /* eslint-env browser */
 
@@ -123256,4 +123255,5 @@ exports.createContext = Script.createContext = function (context) {
 arguments[4][322][0].apply(exports,arguments)
 },{"dup":322}]},{},[4])(4)
 });
+
 
