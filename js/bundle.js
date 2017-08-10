@@ -2235,10 +2235,7 @@ function candlestickChart(elem, title, xtitle, ytitle, data, minValue, maxValue)
           width: $(`#${elem}`).parent().width(),
           height: $(`#${elem}`).parent().height(),
           chartArea: { left: 50, width: '90%', height: '80%' },
-          backgroundColor: {
-        'fill': '#FFF',
-        'opacity': 100
-     },
+          backgroundColor: { fill: 'transparent' },
           colors: ['#ccc'],
           hAxis: {
             title: xtitle,
@@ -2284,11 +2281,8 @@ function depthChart(elem, title, xtitle, ytitle, data, minX, maxX) {
           width: $(`#${elem}`).parent().width(),
           height: $(`#${elem}`).parent().height(),
           chartArea: { left: 50, width: '90%', height: '80%' },
-          backgroundColor: {
-        'fill': '#FFF',
-        'opacity': 100
-     },
-          colors: ['#d9534f', '#00796b'],
+          backgroundColor: { fill: 'transparent' },
+          colors: ['#ccc'],
           title,
           hAxis: {
             viewWindowMode: 'explicit',
