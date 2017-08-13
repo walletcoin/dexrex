@@ -1338,6 +1338,7 @@ module.exports = {
     { token: 'AMIS', base: 'ETH' },
   ],
 };
+
 },{}],3:[function(require,module,exports){
 /* eslint-env browser */
 
@@ -1976,9 +1977,6 @@ DecentrEx.prototype.displayVolumes = function displayVolumes(
   orders, returnTicker, blockNumber, callback) {
   let tokenVolumes = {};
   let pairVolumes = {};
-  const timeFrames = [86400 * 1000 * 7, 86400 * 1000 * 1];
-  const mainBases = ['DUSD', 'ETH']; // in order of priority
-  const now = new Date();
   // the default pairs
   for (let i = 0; i < this.config.pairs.length; i += 1) {
     const token = this.getToken(this.config.pairs[i].token);
