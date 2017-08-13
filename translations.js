@@ -103,11 +103,10 @@ module.exports = {
     es: 'Profundidad',
   },
   only_7_days: {
-    en: 'Note: DecentrEx will only show transactions from the last 7 days.',
-    cn: 'Note: DecentrEx 只会显示近7天的交易记录',
-    // cn:'Note: DecentrEx will only show transactions from the last 7 days.'
-    fr: 'Note: DecentrEx ne montrera que les 7 derniers jours de transactions.',
-    es: 'Nota Bene: DecentrEx sólo mostrará las transacciones de los últimos 7 días.',
+    en: 'Note: DecentrEx will only show recent transactions.',
+    cn: '注意：DecentrEx只会显示最近的交易。',
+    fr: 'Remarque: DecentrEx affichera uniquement les transactions récentes.',
+    es: 'Nota: DecentrEx sólo mostrará transacciones recientes.',
   },
 
   announcements: {
@@ -641,8 +640,8 @@ module.exports = {
   deposit_withdraw_4: {
     en: 'To deposit, click the "Deposit" tab, pick a token, enter an amount you would like to deposit from your Ethereum account into DecentrEx, and click "Deposit."',
     cn: '充值点“充值”，选择一种币，输入从以太坊账号进入DecentrEx的充值数量，再点“充值”。',
-    fr: 'Pour déposer, cliquer sur "Deposit" tab, choisir un jeton, entrer le montant à déposer depuis votre compte Ethereum vers Etherdelta, puis cliquer "Deposit".',
-    es: 'Para abonar, haga clic en la pestaña "depósito", elegir un modo, ingrese la cantidad a depositar desde su cuenta a Etereum Etherdelta y haga clic en "depósito.',
+    fr: 'Pour déposer, cliquer sur "Deposit" tab, choisir un jeton, entrer le montant à déposer depuis votre compte Ethereum vers Decentrex, puis cliquer "Deposit".',
+    es: 'Para abonar, haga clic en la pestaña "depósito", elegir un modo, ingrese la cantidad a depositar desde su cuenta a Etereum Decentrex y haga clic en "depósito.',
   },
   deposit_withdraw_5: {
     en: 'To withdraw, use the "Withdraw" tab.',
@@ -695,8 +694,8 @@ module.exports = {
   trade_6: {
     en: 'When you submit a resting order, it gets broadcast to the world. The current broadcast channel is a Gitter chat room, but DecentrEx also supports using Ethereum events as a fallback broadcast mechanism.',
     cn: '但你提交了一个“待定下单”后，它会广播到全球。现在的传播渠道是Gitter聊天室，但是DecentrEx也支持以太坊事件机制，用来保底。',
-    fr: "Quand vous soumettez un ordre restant, il se diffuse dans le monde entier. Le canal de causerie principal s'appele Gitter chat room, mais Etherdelta supporte egalement des evenements ethereum en tant que moyen de diffusion alternative.",
-    es: 'Cuando se envía una orden de reposo, que se transmitió al mundo. El canal de difusión actual es una sala de chat Gitter, Etherdelta también promueve eventos Ethereum como un medio alternativo de distribución.',
+    fr: "Quand vous soumettez un ordre restant, il se diffuse dans le monde entier. Le canal de causerie principal s'appele Gitter chat room, mais Decentrex supporte egalement des evenements ethereum en tant que moyen de diffusion alternative.",
+    es: 'Cuando se envía una orden de reposo, que se transmitió al mundo. El canal de difusión actual es una sala de chat Gitter, Decentrex también promueve eventos Ethereum como un medio alternativo de distribución.',
   },
   trade_7: {
     en: 'The GUI scans for new orders being broadcast and displays them in the order book (offers on the left, bids on the right).',

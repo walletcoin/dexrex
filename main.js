@@ -50,16 +50,19 @@ function DecentrEx() {
   this.language = 'en';
   this.minOrderSize = 0.01;
   this.messageToSend = undefined;
-  this.blockTimeSnapshot = { blockNumber: 3154928, date: new Date('Feb-10-2017 01:40:47') }; // default snapshot
   this.translator = undefined;
-  this.secondsPerBlock = 14;
+  this.secondsPerBlock = 15;
   this.usersWithOrdersToUpdate = {};
   this.apiServerNonce = undefined;
   this.ordersResultByPair = { orders: [], blockNumber: 0 };
   this.topOrdersResult = { orders: [], blockNumber: 0 };
   this.selectedContract = undefined;
+  this.returnTicker = {};
   this.web3 = undefined;
-  this.startDecentrEx();
+  this.daysOfData = 7;
+  window.addEventListener('load', () => {
+    this.startDecentrEx();
+  });
 }
 DecentrEx.prototype.ejs = function ejs(url, element, data) {
   if ($(`#${element}`).length) {
@@ -266,7 +269,7 @@ DecentrEx.prototype.selectAccount = function selectAccount(i) {
   });
 };
 DecentrEx.prototype.addAccount = function addAccount(newAddr, newPk) {
-  let addr = newAddr;
+  let addr = newAddr.toLowerCase();
   let pk = newPk;
   if (addr.slice(0, 2) !== '0x') addr = `0x${addr}`;
   if (pk.slice(0, 2) === '0x') pk = pk.slice(2);
@@ -385,12 +388,12 @@ DecentrEx.prototype.loadEvents = function loadEvents(callback) {
       lastBlock = event.blockNumber;
     }
   });
+  console.log('lastBlock', lastBlock);
   utility.getURL(`${this.config.apiServer}/events/${this.apiServerNonce}/${lastBlock}`, (err, result) => {
-    if (!err) {
+    if (!err && result !== 'error') {
       try {
         const res = JSON.parse(result);
         const blockNumber = res.blockNumber;
-        this.blockTimeSnapshot = { blockNumber, date: new Date() };
         const events = res.events;
         let newEvents = 0;
         Object.values(events).forEach((event) => {
@@ -411,11 +414,21 @@ DecentrEx.prototype.loadEvents = function loadEvents(callback) {
             }
           }
         });
+        Object.keys(this.eventsCache).forEach((key) => {
+          if (this.eventsCache[key].blockNumber <
+          blockNumber - ((86400 * this.daysOfData) / this.secondsPerBlock)) {
+            delete this.eventsCache[key];
+          }
+        });
         callback(null, newEvents);
       } catch (errGet) {
         console.log('Events log has not changed since last refresh.');
         callback(null, 0);
       }
+    } else {
+      this.apiServerNonce = Math.random().toString().slice(2) +
+        Math.random().toString().slice(2);
+      callback(null, 0);
     }
   });
 };
@@ -579,12 +592,10 @@ function displayMyTransactions(ordersIn, blockNumber, callback) {
       callback();
     });
 };
-DecentrEx.prototype.displayVolumes = function displayVolumes(orders, blockNumber, callback) {
+DecentrEx.prototype.displayVolumes = function displayVolumes(
+  orders, returnTicker, blockNumber, callback) {
   let tokenVolumes = {};
   let pairVolumes = {};
-  const timeFrames = [86400 * 1000 * 7, 86400 * 1000 * 1];
-  const mainBases = ['DUSD', 'ETH']; // in order of priority
-  const now = new Date();
   // the default pairs
   for (let i = 0; i < this.config.pairs.length; i += 1) {
     const token = this.getToken(this.config.pairs[i].token);
@@ -595,86 +606,49 @@ DecentrEx.prototype.displayVolumes = function displayVolumes(orders, blockNumber
         pairVolumes[pair] = {
           token,
           base,
-          volumes: Array(timeFrames.length).fill(0),
-          ethVolumes: Array(timeFrames.length).fill(0),
+          volume: 0,
+          ethVolume: 0,
         };
       }
     }
   }
   // get trading volume
-  const events = Object.values(this.eventsCache);
-  events.forEach((event) => {
-    if (event.event === 'Trade' && event.address === this.config.contractDecentrExAddr) {
-      const tokenGet = this.getToken(event.args.tokenGet);
-      const tokenGive = this.getToken(event.args.tokenGive);
-      const amountGet = event.args.amountGet;
-      const amountGive = event.args.amountGive;
-      if (tokenGet && tokenGive) {
-        if (!tokenVolumes[tokenGet.name]) {
-          tokenVolumes[tokenGet.name] = {
-            token: tokenGet,
-            volumes: Array(timeFrames.length).fill(0),
-            ethVolumes: Array(timeFrames.length).fill(0),
-          };
-        }
-        if (!tokenVolumes[tokenGive.name]) {
-          tokenVolumes[tokenGive.name] = {
-            token: tokenGive,
-            volumes: Array(timeFrames.length).fill(0),
-            ethVolumes: Array(timeFrames.length).fill(0),
-          };
-        }
-        let token;
-        let base;
-        let volume = 0;
-        let ethVolume;
-        mainBases.some((mainBase) => {
-          if (tokenGive.name === mainBase) {
-            token = tokenGet;
-            base = tokenGive;
-            volume = amountGet;
-            return true;
-          } else if (tokenGet.name === mainBase) {
-            token = tokenGive;
-            base = tokenGet;
-            volume = amountGive;
-            return true;
-          }
-          return false;
-        });
-        if (!token && !base && tokenGive.name >= tokenGet.name) {
-          token = tokenGive;
-          base = tokenGet;
-          volume = amountGive;
-        } else if (!token && !base && tokenGive.name < tokenGet.name) {
-          token = tokenGet;
-          base = tokenGive;
-          volume = amountGet;
-        }
-        if (tokenGive.name === 'ETH') ethVolume = amountGive;
-        if (tokenGet.name === 'ETH') ethVolume = amountGet;
-        const pair = `${token.name}/${base.name}`;
-        if (!pairVolumes[pair]) {
-          pairVolumes[pair] = {
-            token,
-            base,
-            volumes: Array(timeFrames.length).fill(0),
-            ethVolumes: Array(timeFrames.length).fill(0),
-          };
-        }
-        for (let i = 0; i < timeFrames.length; i += 1) {
-          const timeFrame = timeFrames[i];
-          if (now - this.blockTime(event.blockNumber) < timeFrame) {
-            tokenVolumes[tokenGet.name].volumes[i] += Number(amountGet);
-            tokenVolumes[tokenGive.name].volumes[i] += Number(amountGive);
-            pairVolumes[pair].volumes[i] += Number(volume);
-            if (ethVolume) {
-              tokenVolumes[tokenGet.name].ethVolumes[i] += Number(ethVolume);
-              tokenVolumes[tokenGive.name].ethVolumes[i] += Number(ethVolume);
-              pairVolumes[pair].ethVolumes[i] += Number(ethVolume);
-            }
-          }
-        }
+  Object.keys(this.returnTicker).forEach((returnKey) => {
+    const ret = this.returnTicker[returnKey];
+    const spl = returnKey.split('_');
+    const A = spl[0];
+    const B = spl[1];
+    const pair = `${B}/${A}`;
+    // console.log(pair)
+    if (pairVolumes[pair]) {
+      // console.log(pair, ret)
+      pairVolumes[pair].volume = Number(ret.quoteVolume);
+      pairVolumes[pair].ethVolume = Number(ret.baseVolume);
+    }
+    const tokenA = this.getToken(A);
+    const tokenB = this.getToken(B);
+    if (tokenA) {
+      if (tokenVolumes[A]) {
+        tokenVolumes[A].volume += Number(ret.baseVolume);
+        tokenVolumes[A].ethVolume += Number(ret.baseVolume);
+      } else {
+        tokenVolumes[A] = {
+          token: tokenA,
+          volume: Number(ret.baseVolume),
+          ethVolume: Number(ret.baseVolume),
+        };
+      }
+    }
+    if (tokenB) {
+      if (tokenVolumes[B]) {
+        tokenVolumes[B].volume += Number(ret.quoteVolume);
+        tokenVolumes[B].ethVolume += Number(ret.baseVolume);
+      } else {
+        tokenVolumes[B] = {
+          token: tokenB,
+          volume: Number(ret.quoteVolume),
+          ethVolume: Number(ret.baseVolume),
+        };
       }
     }
   });
@@ -708,9 +682,9 @@ DecentrEx.prototype.displayVolumes = function displayVolumes(orders, blockNumber
     pairVolume.ask = ask;
   });
   tokenVolumes = Object.values(tokenVolumes);
-  tokenVolumes.sort((a, b) => b.ethVolumes[0] - a.ethVolumes[0]);
+  tokenVolumes.sort((a, b) => b.ethVolume - a.ethVolume);
   pairVolumes = Object.values(pairVolumes);
-  pairVolumes.sort((a, b) => b.ethVolumes[0] - a.ethVolumes[0]);
+  pairVolumes.sort((a, b) => b.ethVolume - a.ethVolume);
   this.ejs(`${this.config.homeURL}/templates/volume.ejs`, 'volume', {
     tokenVolumes,
     pairVolumes,
@@ -739,6 +713,7 @@ DecentrEx.prototype.displayTradesAndChart = function displayTradesAndChart(callb
               .div(this.getDivisor(event.args.tokenGive)),
             id: (event.blockNumber * 1000) + event.transactionIndex,
             blockNumber: event.blockNumber,
+            date: new Date(utility.hexToDec(event.timeStamp) * 1000),
             buyer: event.args.get,
             seller: event.args.give,
           };
@@ -755,6 +730,7 @@ DecentrEx.prototype.displayTradesAndChart = function displayTradesAndChart(callb
               .div(this.getDivisor(event.args.tokenGet)),
             id: (event.blockNumber * 1000) + event.transactionIndex,
             blockNumber: event.blockNumber,
+            date: new Date(utility.hexToDec(event.timeStamp) * 1000),
             buyer: event.args.give,
             seller: event.args.get,
           };
@@ -780,7 +756,7 @@ DecentrEx.prototype.displayTradesAndChart = function displayTradesAndChart(callb
   }
   const now = new Date();
   const data = trades
-    .map(trade => [this.blockTime(trade.blockNumber), trade.price.toNumber()])
+    .map(trade => [trade.date, trade.price.toNumber()])
     .filter(x => now - x[0] < 86400 * 1000 * 7);
   const values = data.map(x => x[1]);
   values.sort();
@@ -954,9 +930,9 @@ function lineChart(elem, title, xtype, ytype, xtitle, ytitle, data) {
     }
   });
 };
-DecentrEx.prototype.getOrders = function getOrders(callback) {
-  utility.getURL(`${this.config.apiServer}/orders/${this.apiServerNonce}`, (err, result) => {
-    if (!err && result) {
+DecentrEx.prototype.getOrdersByPair = function getOrdersByPair(tokenA, tokenB, callback) {
+  utility.getURL(`${this.config.apiServer}/orders/${this.apiServerNonce}/${tokenA}/${tokenB}`, (err, result) => {
+    if (!err && result !== 'error') {
       try {
         const res = JSON.parse(result);
         const blockNumber = res.blockNumber;
@@ -988,51 +964,26 @@ DecentrEx.prototype.getOrders = function getOrders(callback) {
         });
         callback(null, { orders, blockNumber });
       } catch (errCatch) {
-        callback(err, undefined);
+        callback(err, this.ordersResultByPair);
       }
     } else {
-      callback(err, undefined);
+      this.apiServerNonce = Math.random().toString().slice(2) +
+        Math.random().toString().slice(2);
+      callback(err, this.ordersResultByPair);
     }
   });
 };
-DecentrEx.prototype.getOrdersByPair = function getOrdersByPair(tokenA, tokenB, callback) {
-  utility.getURL(`${this.config.apiServer}/orders/${this.apiServerNonce}/${tokenA}/${tokenB}`, (err, result) => {
-    if (!err) {
+DecentrEx.prototype.getReturnTicker = function getTopOrders(callback) {
+  utility.getURL(`${this.config.apiServer}/returnTicker`, (err, result) => {
+    if (!err && result !== 'error') {
       try {
         const res = JSON.parse(result);
-        const blockNumber = res.blockNumber;
-        let orders;
-        if (Array.isArray(res.orders)) {
-          orders = res.orders;
-        } else {
-          orders = Object.values(res.orders);
-        }
-        orders.forEach((x) => {
-          Object.assign(x, {
-            price: new BigNumber(x.price),
-            // amount: new BigNumber(x.amount),
-            // availableVolume: new BigNumber(x.availableVolume),
-            // ethAvailableVolume: x.ethAvailableVolume,
-            order: Object.assign(x.order, {
-              amountGet: new BigNumber(x.order.amountGet),
-              amountGive: new BigNumber(x.order.amountGive),
-              expires: Number(x.order.expires),
-              nonce: Number(x.order.nonce),
-              tokenGet: x.order.tokenGet,
-              tokenGive: x.order.tokenGive,
-              user: x.order.user,
-              r: x.order.r,
-              s: x.order.s,
-              v: x.order.v ? Number(x.order.v) : undefined,
-            }),
-          });
-        });
-        callback(null, { orders, blockNumber });
+        callback(null, res);
       } catch (errCatch) {
-        callback(err, undefined);
+        callback(err, this.returnTicker);
       }
     } else {
-      callback(err, undefined);
+      callback(err, this.returnTicker);
     }
   });
 };
@@ -1070,10 +1021,10 @@ DecentrEx.prototype.getTopOrders = function getTopOrders(callback) {
         });
         callback(null, { orders, blockNumber });
       } catch (errCatch) {
-        callback(err, undefined);
+        callback(err, this.topOrdersResult);
       }
     } else {
-      callback(err, undefined);
+      callback(err, this.topOrdersResult);
     }
   });
 };
@@ -1146,7 +1097,10 @@ DecentrEx.prototype.displayOrderbook = function displayOrderbook(ordersIn, block
     $('#orderBookMid').position().top -
     ($('#orderBookScroll')[0].clientHeight / 2) -
     $('#orderBookMid')[0].clientHeight;
-  this.depthChart('chartDepth', '', '', '', depthData, median * 0.25, median * 1.75);
+  const depthDataFiltered = depthData.slice(0, 1).concat(depthData.slice(1)
+    .map(x => [x[0], Number(x[1]), x[2]])
+    .filter(x => x[0] > median * 0.025 && x[0] < median * 1.75));
+  this.depthChart('chartDepth', '', '', '', depthDataFiltered, median * 0.25, median * 1.75);
   callback();
 };
 DecentrEx.prototype.displayTokensAndBases = function displayTokensAndBases(callback) {
@@ -1239,9 +1193,9 @@ DecentrEx.prototype.displayAllBalances = function displayAllBalances(callback) {
     });
 };
 DecentrEx.prototype.transfer = function transfer(addr, inputAmount, toAddr) {
-  let amount = utility.ethToWei(inputAmount, this.getDivisor(addr));
+  let amount = new BigNumber(Number(utility.ethToWei(inputAmount, this.getDivisor(addr))));
   const token = this.getToken(addr);
-  if (amount <= 0) {
+  if (amount.lte(0)) {
     this.alertError('You must specify a valid amount to transfer.');
     ga('send', {
       hitType: 'event',
@@ -1264,8 +1218,8 @@ DecentrEx.prototype.transfer = function transfer(addr, inputAmount, toAddr) {
   } else if (addr.slice(0, 39) === '0x0000000000000000000000000000000000000') {
     // plain Ether transfer
     utility.getBalance(this.web3, this.addrs[this.selectedAccount], (err, balance) => {
-      if (amount > balance) amount = balance;
-      if (amount <= 0) {
+      if (amount.gt(balance)) amount = balance;
+      if (amount.lte(0)) {
         this.alertError('You do not have anything to transfer. Note: you can only transfer from your "Wallet." If you have Ether on deposit, please withdraw first, then transfer.');
         ga('send', {
           hitType: 'event',
@@ -1280,7 +1234,7 @@ DecentrEx.prototype.transfer = function transfer(addr, inputAmount, toAddr) {
           undefined,
           toAddr,
           undefined,
-          [{ gas: this.config.gasDeposit, value: amount }],
+          [{ gas: this.config.gasDeposit, value: amount.toNumber() }],
           this.addrs[this.selectedAccount],
           this.pks[this.selectedAccount],
           this.nonce,
@@ -1307,8 +1261,8 @@ DecentrEx.prototype.transfer = function transfer(addr, inputAmount, toAddr) {
       'balanceOf',
       [this.addrs[this.selectedAccount]],
       (err, result) => {
-        if (amount > result) amount = result;
-        if (amount <= 0) {
+        if (amount.gt(result)) amount = result;
+        if (amount.lte(0)) {
           this.alertError('You do not have anything to transfer. Note: you can only transfer from your "Wallet." If you have tokens on deposit, please withdraw first, then transfer.');
           ga('send', {
             hitType: 'event',
@@ -1344,9 +1298,13 @@ DecentrEx.prototype.transfer = function transfer(addr, inputAmount, toAddr) {
   }
 };
 DecentrEx.prototype.deposit = function deposit(addr, inputAmount) {
-  let amount = utility.ethToWei(inputAmount, this.getDivisor(addr));
+  let amount = new BigNumber(Number(utility.ethToWei(inputAmount, this.getDivisor(addr))));
   const token = this.getToken(addr);
-  if (amount <= 0) {
+  if (token && token.name === 'PTOY') {
+    this.alertError('PTOY is completing a token upgrade. You can trade, but please refrain from depositing/withdrawing until the token upgrade is complete.');
+    return;
+  }
+  if (amount.lte(0)) {
     this.alertError('You must specify a valid amount to deposit.');
     ga('send', {
       hitType: 'event',
@@ -1359,14 +1317,14 @@ DecentrEx.prototype.deposit = function deposit(addr, inputAmount) {
   }
   if (addr.slice(0, 39) === '0x0000000000000000000000000000000000000') {
     utility.getBalance(this.web3, this.addrs[this.selectedAccount], (err, result) => {
-      if (amount > result && amount < result * 1.1) amount = result;
-      if (amount <= result) {
+      if (amount.gt(result) && amount.lt(result.times(new BigNumber(1.1)))) amount = result;
+      if (amount.lte(result)) {
         utility.send(
           this.web3,
           this.contractDecentrEx,
           this.config.contractDecentrExAddr,
           'deposit',
-          [{ gas: this.config.gasDeposit, value: amount }],
+          [{ gas: this.config.gasDeposit, value: amount.toNumber() }],
           this.addrs[this.selectedAccount],
           this.pks[this.selectedAccount],
           this.nonce,
@@ -1401,8 +1359,8 @@ DecentrEx.prototype.deposit = function deposit(addr, inputAmount) {
       'balanceOf',
       [this.addrs[this.selectedAccount]],
       (err, result) => {
-        if (amount > result && amount < result * 1.1) amount = result;
-        if (amount <= result) {
+        if (amount.gt(result) && amount.lt(result.times(new BigNumber(1.1)))) amount = result;
+        if (amount.lte(result)) {
           utility.send(
             this.web3,
             this.contractToken,
@@ -1453,9 +1411,13 @@ DecentrEx.prototype.deposit = function deposit(addr, inputAmount) {
   }
 };
 DecentrEx.prototype.withdraw = function withdraw(addr, amountIn) {
-  let amount = utility.ethToWei(amountIn, this.getDivisor(addr));
+  let amount = new BigNumber(Number(utility.ethToWei(amountIn, this.getDivisor(addr))));
   const token = this.getToken(addr);
-  if (amount <= 0) {
+  if (token && token.name === 'PTOY') {
+    this.alertError('PTOY is completing a token upgrade. You can trade, but please refrain from depositing/withdrawing until the token upgrade is complete.');
+    return;
+  }
+  if (amount.lte(0)) {
     this.alertError('You must specify a valid amount to withdraw.');
     ga('send', {
       hitType: 'event',
@@ -1479,7 +1441,7 @@ DecentrEx.prototype.withdraw = function withdraw(addr, amountIn) {
       if (amount > balance) {
         amount = balance;
       }
-      if (amount <= 0) {
+      if (amount.lte(0)) {
         this.alertError("You don't have anything to withdraw.");
         ga('send', {
           hitType: 'event',
@@ -1776,13 +1738,13 @@ DecentrEx.prototype.trade = function trade(kind, order, inputAmount) {
   let amount;
   if (kind === 'sell') {
     // if I'm selling a bid, the buyer is getting the token
-    amount = utility.ethToWei(inputAmount, this.getDivisor(order.tokenGet));
+    amount = new BigNumber(utility.ethToWei(inputAmount, this.getDivisor(order.tokenGet)));
   } else if (kind === 'buy') {
     // if I'm buying an offer, the seller is getting
     // the base and giving the token, so must convert to get terms
-    amount = utility.ethToWei(
+    amount = new BigNumber(utility.ethToWei(
       inputAmount * (Number(order.amountGet) / Number(order.amountGive)),
-      this.getDivisor(order.tokenGive));
+      this.getDivisor(order.tokenGive)));
   } else {
     return;
   }
@@ -1793,7 +1755,7 @@ DecentrEx.prototype.trade = function trade(kind, order, inputAmount) {
     'balanceOf',
     [order.tokenGet, this.addrs[this.selectedAccount]],
     (err, result) => {
-      const availableBalance = result.toNumber();
+      const availableBalance = result;
       utility.call(
         this.web3,
         this.contractDecentrEx,
@@ -1812,12 +1774,12 @@ DecentrEx.prototype.trade = function trade(kind, order, inputAmount) {
           order.s,
         ],
         (errAvailableVolume, resultAvailableVolume) => {
-          const availableVolume = resultAvailableVolume.toNumber();
-          if (amount > availableBalance / 1.0031) {
+          const availableVolume = resultAvailableVolume;
+          if (amount.gt(availableBalance.divToInt(1.0031))) {
             // balance adjusted for fees (0.0001 to avoid rounding error)
-            amount = availableBalance / 1.0031;
+            amount = availableBalance.divToInt(1.0031);
           }
-          if (amount > availableVolume) amount = availableVolume;
+          if (amount.gt(availableVolume)) amount = availableVolume;
           let v = Number(order.v);
           let r = order.r;
           let s = order.s;
@@ -1881,9 +1843,20 @@ DecentrEx.prototype.trade = function trade(kind, order, inputAmount) {
                       eventValue: inputAmount,
                     });
                   });
+              } else if (utility.weiToEth(availableVolume,
+              this.getDivisor(this.selectedToken)) < this.minOrderSize) {
+                this.alertError(
+                  "You cannot trade this order because it already traded. Someone else already traded this order and the order book hasn't updated yet.");
+                ga('send', {
+                  hitType: 'event',
+                  eventCategory: 'Error',
+                  eventAction: 'Trade - failed',
+                  eventLabel: `${this.selectedToken.name}/${this.selectedBase.name}`,
+                  eventValue: inputAmount,
+                });
               } else {
                 this.alertError(
-                  "You cannot trade this order. Either this order already traded, or you don't have enough funds. Please DEPOSIT first using the Deposit form in the upper left. Enter the amount you want to deposit and press the 'Deposit' button.");
+                  "You cannot trade this order because you don't have enough funds. Please DEPOSIT first using the Deposit form in the upper left. Enter the amount you want to deposit and press the 'Deposit' button.");
                 ga('send', {
                   hitType: 'event',
                   eventCategory: 'Error',
@@ -1895,11 +1868,6 @@ DecentrEx.prototype.trade = function trade(kind, order, inputAmount) {
             });
         });
     });
-};
-DecentrEx.prototype.blockTime = function blockTime(block) {
-  return new Date(
-    this.blockTimeSnapshot.date.getTime() +
-      ((block - this.blockTimeSnapshot.blockNumber) * 1000 * this.secondsPerBlock));
 };
 DecentrEx.prototype.addPending = function addPending(err, txsIn) {
   const txs = Array.isArray(txsIn) ? txsIn : [txsIn];
@@ -1947,9 +1915,10 @@ DecentrEx.prototype.getToken = function getToken(addrOrToken, name, decimals) {
     result = this.selectedToken;
   } else if (this.selectedBase.addr.toLowerCase() === lowerAddrOrToken) {
     result = this.selectedBase;
-  } else if (addrOrToken.addr && JSON.stringify(Object.keys(addrOrToken).sort()) === expectedKeys) {
+  } else if (addrOrToken && addrOrToken.addr &&
+  JSON.stringify(Object.keys(addrOrToken).sort()) === expectedKeys) {
     result = addrOrToken;
-  } else if (addrOrToken.slice(0, 2) === '0x' && name && decimals >= 0) {
+  } else if (typeof addrOrToken === 'string' && addrOrToken.slice(0, 2) === '0x' && name && decimals >= 0) {
     result = JSON.parse(JSON.stringify(this.config.tokens[0]));
     result.addr = lowerAddrOrToken;
     result.name = name;
@@ -1984,10 +1953,8 @@ DecentrEx.prototype.loadToken = function loadToken(addr, callback) {
 DecentrEx.prototype.selectToken = function selectToken(addrOrToken, name, decimals) {
   const token = this.getToken(addrOrToken, name, decimals);
   if (token) {
-    this.selectedToken = token;
-    this.ordersResultByPair = { orders: [], blockNumber: 0 };
     this.loading(() => {});
-    this.refresh(() => {}, true, true, this.selectedToken, this.selectedBase);
+    this.refresh(() => {}, true, true, token, this.selectedBase);
     ga('send', {
       hitType: 'event',
       eventCategory: 'Token',
@@ -1999,10 +1966,8 @@ DecentrEx.prototype.selectToken = function selectToken(addrOrToken, name, decima
 DecentrEx.prototype.selectBase = function selectBase(addrOrToken, name, decimals) {
   const base = this.getToken(addrOrToken, name, decimals);
   if (base) {
-    this.selectedBase = base;
-    this.ordersResultByPair = { orders: [], blockNumber: 0 };
     this.loading(() => {});
-    this.refresh(() => {}, true, true, this.selectedToken, this.selectedBase);
+    this.refresh(() => {}, true, true, this.selectedToken, base);
     ga('send', {
       hitType: 'event',
       eventCategory: 'Token',
@@ -2015,11 +1980,8 @@ DecentrEx.prototype.selectTokenAndBase = function selectTokenAndBase(tokenAddr, 
   const token = this.getToken(tokenAddr);
   const base = this.getToken(baseAddr);
   if (token && base) {
-    this.selectedToken = token;
-    this.selectedBase = base;
-    this.ordersResultByPair = { orders: [], blockNumber: 0 };
     this.loading(() => {});
-    this.refresh(() => {}, true, true, this.selectedToken, this.selectedBase);
+    this.refresh(() => {}, true, true, token, base);
     ga('send', {
       hitType: 'event',
       eventCategory: 'Token',
@@ -2146,9 +2108,17 @@ DecentrEx.prototype.loading = function loading(callback) {
   callback();
 };
 DecentrEx.prototype.refresh = function refresh(callback, forceEventRead, initMarket, token, base) {
-  if (token) this.selectedToken = token;
-  if (base) this.selectedBase = base;
   this.q.push((done) => {
+    if (token && base) {
+      this.selectedToken = token;
+      this.selectedBase = base;
+      this.ordersResultByPair = { orders: [], blockNumber: 0 };
+    }
+    if (this.selectedToken.name === 'ETH' && ['USD.DC', 'BTC.DC'].indexOf(this.selectedBase.name) < 0) {
+      const temp = this.selectedBase;
+      this.selectedBase = this.selectedToken;
+      this.selectedToken = temp;
+    }
     console.log('Beginning refresh', new Date(), `${this.selectedToken.name}/${this.selectedBase.name}`);
     this.selectedContract = this.config.contractDecentrExAddr;
     utility.createCookie(
@@ -2192,13 +2162,18 @@ DecentrEx.prototype.refresh = function refresh(callback, forceEventRead, initMar
           async.parallel(
             [
               (callbackParallel) => {
-                this.loadEvents((newEvents) => {
+                console.log('Displaying my account balances', new Date());
+                this.displayAccounts(() => {});
+                this.displayAllBalances(() => {
+                  console.log('Done displaying my account balances', new Date());
+                });
+                callbackParallel();
+              },
+              (callbackParallel) => {
+                console.log('Loading events', new Date());
+                this.loadEvents((err, newEvents) => {
+                  console.log('Done loading events', newEvents, new Date());
                   callbackParallel(null, undefined);
-                  if (newEvents > 0 || forceEventRead) {
-                    this.displayAccounts(() => {});
-                    this.displayAllBalances(() => {});
-                    this.displayTradesAndChart(() => {});
-                  }
                 });
               },
               (callbackParallel) => {
@@ -2210,6 +2185,16 @@ DecentrEx.prototype.refresh = function refresh(callback, forceEventRead, initMar
                           this.topOrdersResult = result;
                         } else {
                           console.log('Top levels have not changed since last refresh.');
+                        }
+                        callbackParallel2(null, undefined);
+                      });
+                    },
+                    (callbackParallel2) => {
+                      this.getReturnTicker((err, result) => {
+                        if (!err && result) {
+                          this.returnTicker = result;
+                        } else {
+                          console.log('Return ticker has not changed since last refresh.');
                         }
                         callbackParallel2(null, undefined);
                       });
@@ -2229,39 +2214,50 @@ DecentrEx.prototype.refresh = function refresh(callback, forceEventRead, initMar
                     },
                   ],
                   () => {
-                    async.parallel(
-                      [
-                        (callbackParallel2) => {
-                          this.displayMyTransactions(
-                            this.ordersResultByPair.orders,
-                            this.ordersResultByPair.blockNumber,
-                            () => {
-                              callbackParallel2(null, undefined);
-                            });
-                        },
-                        (callbackParallel2) => {
-                          this.displayOrderbook(this.ordersResultByPair.orders,
-                          this.ordersResultByPair.blockNumber, () => {
-                            callbackParallel2(null, undefined);
-                          });
-                        },
-                        (callbackParallel2) => {
-                          this.displayVolumes(this.topOrdersResult.orders,
-                          this.topOrdersResult.blockNumber, () => {
-                            callbackParallel2(null, undefined);
-                          });
-                        }],
-                      () => {
-                        callbackParallel(null, undefined);
-                      });
+                    console.log('Displaying order book', new Date());
+                    this.displayOrderbook(this.ordersResultByPair.orders,
+                    this.ordersResultByPair.blockNumber, () => {
+                      console.log('Done displaying order book', new Date());
+                      callbackParallel(null, undefined);
+                    });
                   });
               }],
             () => {
-              callbackSeries(null, undefined);
+              async.parallel(
+                [
+                  (callbackParallel3) => {
+                    console.log('Displaying volumes', new Date());
+                    this.displayVolumes(this.topOrdersResult.orders,
+                    this.returnTicker,
+                    this.topOrdersResult.blockNumber, () => {
+                      console.log('Done displaying volumes', new Date());
+                      callbackParallel3();
+                    });
+                  },
+                  (callbackParallel3) => {
+                    console.log('Displaying trades and chart', new Date());
+                    this.displayTradesAndChart(() => {
+                      console.log('Done displaying trades and chart', new Date());
+                      callbackParallel3();
+                    });
+                  },
+                  (callbackParallel3) => {
+                    console.log('Displaying my transactions', new Date());
+                    this.displayMyTransactions(
+                      this.ordersResultByPair.orders,
+                      this.ordersResultByPair.blockNumber,
+                      () => {
+                        console.log('Done displaying my transactions', new Date());
+                        callbackParallel3();
+                      });
+                  }],
+                () => {
+                  callbackSeries(null, undefined);
+                });
             });
         }],
       () => {
-        console.log('Ending refresh');
+        console.log('Ending refresh', new Date());
         done();
         callback();
       });
@@ -2271,7 +2267,7 @@ DecentrEx.prototype.refreshLoop = function refreshLoop() {
   const self = this;
   function loop() {
     self.refresh(() => {
-      setTimeout(loop, 10 * 1000);
+      setTimeout(loop, 60 * 1000);
     });
   }
   loop();
@@ -2433,10 +2429,13 @@ DecentrEx.prototype.initContracts = function initContracts(callback) {
   });
 };
 DecentrEx.prototype.startDecentrEx = function startDecentrEx() {
-  console.log('Beginning init');
+  console.log('Beginning init', new Date());
   this.loadWeb3(() => {
+    console.log('Web3 done', new Date());
     this.initContracts(() => {
+      console.log('Init contracts done', new Date());
       this.initDisplays(() => {
+        console.log('Displays done', new Date());
         this.refreshLoop();
       });
     });

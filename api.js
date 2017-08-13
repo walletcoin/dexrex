@@ -108,7 +108,7 @@ API.init = function init(callback, allContracts, path, provider, configName, loo
         (callbackSeries) => {
           API.logs(() => {
             callbackSeries(null, true);
-          },lookbackIn);
+          }, lookbackIn);
         },
       ],
       () => {
@@ -678,6 +678,10 @@ API.updateOrder = function updateOrder(orderIn, callback) {
               if (!errAvail) {
                 const availableVolume = resultAvail;
                 if (order.amount >= 0) {
+                  order.price = new BigNumber(order.order.amountGive)
+                    .div(new BigNumber(order.order.amountGet))
+                    .mul(API.getDivisor(order.order.tokenGet))
+                    .div(API.getDivisor(order.order.tokenGive));
                   order.availableVolume = availableVolume;
                   order.ethAvailableVolume = this.utility.weiToEth(
                     Math.abs(order.availableVolume),
@@ -689,6 +693,10 @@ API.updateOrder = function updateOrder(orderIn, callback) {
                   order.ethAvailableVolumeBase = this.utility.weiToEth(order.availableVolumeBase,
                     API.getDivisor(order.order.tokenGive));
                 } else {
+                  order.price = new BigNumber(order.order.amountGet)
+                    .div(new BigNumber(order.order.amountGive))
+                    .mul(API.getDivisor(order.order.tokenGive))
+                    .div(API.getDivisor(order.order.tokenGet));
                   order.availableVolume = availableVolume
                     .div(order.price)
                     .mul(API.getDivisor(order.order.tokenGive))
@@ -738,14 +746,12 @@ API.updateOrder = function updateOrder(orderIn, callback) {
                           callback('Order is filled', undefined);
                         }
                       } else {
-                        // if there's an error, assume the order is ok and try again later
                         callback(null, order);
                       }
                     });
                 } else if (!order.updated) {
-                  // if the available volume is too low,
-                  // but this is the first attempt, try again later
-                  callback(null, order);
+                  // may want to not count this as an error and try again
+                  callback('Volume too low', undefined);
                 } else {
                   callback('Volume too low', undefined);
                 }
@@ -789,17 +795,42 @@ API.getTopOrders = function getTopOrders() {
   return orders;
 };
 
-API.getOrdersByPair = function getOrdersByPair(tokenA, tokenB) {
+API.getOrdersByPair = function getOrdersByPair(tokenA, tokenB, n) {
   const orders = [];
   Object.keys(API.ordersCache).forEach((key) => {
     const order = API.ordersCache[key];
-    if ((order.order.tokenGive.toLowerCase() === tokenA.toLowerCase() &&
+    if (((order.order.tokenGive.toLowerCase() === tokenA.toLowerCase() &&
     order.order.tokenGet.toLowerCase() === tokenB.toLowerCase())
     || (order.order.tokenGive.toLowerCase() === tokenB.toLowerCase() &&
-    order.order.tokenGet.toLowerCase() === tokenA.toLowerCase())) {
+    order.order.tokenGet.toLowerCase() === tokenA.toLowerCase())) &&
+    Number(order.ethAvailableVolume).toFixed(3) >= this.minOrderSize &&
+    Number(order.ethAvailableVolumeBase).toFixed(3) >= this.minOrderSize) {
       orders.push(order);
     }
   });
+  if (n) {
+    const topNOrders = [];
+    const buys = [];
+    const sells = [];
+    orders.forEach((order) => {
+      if (order.amount > 0 && order.order.tokenGive === tokenB &&
+      order.order.tokenGet === tokenA) {
+        buys.push(order);
+      } else if (order.amount < 0 && order.order.tokenGive === tokenA &&
+      order.order.tokenGet === tokenB) {
+        sells.push(order);
+      }
+    });
+    sells.sort((a, b) => a.price - b.price || a.id - b.id);
+    buys.sort((a, b) => b.price - a.price || a.id - b.id);
+    buys.slice(0, n).forEach((order) => {
+      topNOrders.push(order);
+    });
+    sells.slice(0, n).forEach((order) => {
+      topNOrders.push(order);
+    });
+    return topNOrders;
+  }
   return orders;
 };
 
@@ -1009,7 +1040,7 @@ API.returnTicker = function returnTicker(callback) {
         if (!tickers[pair]) {
           tickers[pair] = { last: undefined, percentChange: 0, baseVolume: 0, quoteVolume: 0 };
         }
-        const tradeTime = API.blockTime(trade.blockNumber);
+        const tradeTime = trade.date;
         const price = Number(trade.price);
         tickers[pair].last = price;
         if (!firstOldPrices[pair]) firstOldPrices[pair] = price;
