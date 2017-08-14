@@ -3,9 +3,9 @@
     <% pairVolumes.forEach(function(pairVolume){ %>
       <tr>
         <td><a href="javascript:;" onclick="bundle.DecentrEx.selectTokenAndBase('<%= pairVolume.token.addr %>','<%= pairVolume.base.addr %>');"><%= pairVolume.token.name+'/'+pairVolume.base.name %></a></td>
-        <td class="align-right"><%= Math.round(pairVolume.volume) %></td>
         <td class="align-right"><%= pairVolume.bid ? pairVolume.bid.toNumber().toFixed(5) : '' %></td>
         <td class="align-right padding-right"><%= pairVolume.ask ? pairVolume.ask.toNumber().toFixed(5) : '' %></td>
+        <td class="align-right"><%= Math.round(pairVolume.volume) %></td>
       </tr>
     <% }) %>
     <tr class="mid-header">
