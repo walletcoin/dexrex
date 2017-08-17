@@ -22,14 +22,12 @@ h3 {
     color: #607d8b;
     text-align: center;
     font-size: 38px
+    text-shadow: 1px 1px 0 #607d8b,1px 1px 0 rgba(0,0,0,0.15);
 }
 .h2,
 h2 {
     line-height: .8;
     margin-bottom: 30px
-}
-.features-list h4 {
-    color: #333;
 }
 .container {
     margin: 0;
