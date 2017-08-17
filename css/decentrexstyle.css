@@ -28,6 +28,9 @@ h2 {
     line-height: .8;
     margin-bottom: 30px
 }
+.h4 {
+color:#333;
+}
 .container {
     margin: 0;
     padding: 0;
@@ -306,7 +309,7 @@ pre code {
 .features-list {
 float: none;
 margin: 0 auto;
-width: 98%;
+width: 96%;
 padding-top: 8px;
 padding-bottom: 24px;
 color: #333;
