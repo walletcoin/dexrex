@@ -29,6 +29,11 @@ h2 {
     line-height: .8;
     margin-bottom: 30px
 }
+
+.features-list h4 {
+   color: #333;
+}
+
 .container {
     margin: 0;
     padding: 0;
