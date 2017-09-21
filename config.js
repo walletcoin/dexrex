@@ -243,6 +243,7 @@ module.exports = {
 { token: 'ADX', base: 'ETH' },
 { token: 'AE', base: 'ETH' },
 { token: 'AIRA', base: 'ETH' },
+{ token: 'AMIS', base: 'ETH' },   
 { token: 'ANT', base: 'ETH' },
 { token: 'ARC', base: 'ETH' },
 { token: 'ART', base: 'ETH' },
