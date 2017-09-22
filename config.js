@@ -267,7 +267,7 @@ module.exports = {
 { token: 'ARX', base: 'ETH' },
 { token: 'ATL', base: 'ETH' },
 { token: 'ATM', base: 'ETH' },
-{ token: 'ATS', base: 'ETH" }
+{ token: 'ATS', base: 'ETH' },
 { token: 'ATT', base: 'ETH' },
 { token: 'AUA', base: 'ETH' },
 { token: 'AVT', base: 'ETH' },
