@@ -1454,7 +1454,7 @@ module.exports = {
 { token: 'ARX', base: 'ETH' },
 { token: 'ATL', base: 'ETH' },
 { token: 'ATM', base: 'ETH' },
-{ token: 'ATS', base: 'ETH" }
+{ token: 'ATS', base: 'ETH' },
 { token: 'ATT', base: 'ETH' },
 { token: 'AUA', base: 'ETH' },
 { token: 'AVT', base: 'ETH' },
@@ -1609,6 +1609,7 @@ module.exports = {
 { token: 'RHOC', base: 'ETH' },
 { token: 'RIYA', base: 'ETH' },
 { token: 'RLC', base: 'ETH' },
+{ token: 'RLX', base: 'ETH' },
 { token: 'ROC', base: 'ETH' },
 { token: 'RVT', base: 'ETH' },
 { token: 'SAI', base: 'ETH' },
