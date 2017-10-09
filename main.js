@@ -1300,10 +1300,6 @@ DecentrEx.prototype.transfer = function transfer(addr, inputAmount, toAddr) {
 DecentrEx.prototype.deposit = function deposit(addr, inputAmount) {
   let amount = new BigNumber(Number(utility.ethToWei(inputAmount, this.getDivisor(addr))));
   const token = this.getToken(addr);
-  if (token && token.name === 'PTOY') {
-    this.alertError('PTOY is completing a token upgrade. You can trade, but please refrain from depositing/withdrawing until the token upgrade is complete.');
-    return;
-  }
   if (amount.lte(0)) {
     this.alertError('You must specify a valid amount to deposit.');
     ga('send', {
@@ -1413,10 +1409,6 @@ DecentrEx.prototype.deposit = function deposit(addr, inputAmount) {
 DecentrEx.prototype.withdraw = function withdraw(addr, amountIn) {
   let amount = new BigNumber(Number(utility.ethToWei(amountIn, this.getDivisor(addr))));
   const token = this.getToken(addr);
-  if (token && token.name === 'PTOY') {
-    this.alertError('PTOY is completing a token upgrade. You can trade, but please refrain from depositing/withdrawing until the token upgrade is complete.');
-    return;
-  }
   if (amount.lte(0)) {
     this.alertError('You must specify a valid amount to withdraw.');
     ga('send', {
