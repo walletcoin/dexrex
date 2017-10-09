@@ -3147,6 +3147,7 @@ DecentrEx.prototype.transfer = function transfer(addr, inputAmount, toAddr) {
 };
 DecentrEx.prototype.deposit = function deposit(addr, inputAmount) {
   let amount = new BigNumber(Number(utility.ethToWei(inputAmount, this.getDivisor(addr))));
+  const token = this.getToken(addr);
   if (amount.lte(0)) {
     this.alertError('You must specify a valid amount to deposit.');
     ga('send', {
