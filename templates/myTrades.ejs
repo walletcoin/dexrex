@@ -28,7 +28,7 @@
           <td><% if(selectedAddr.toLowerCase()==trade.buyer.toLowerCase()) { %><span class="trn">buy</span><% } else { %><span class="trn">sell</span><% } %></span></td>
           <td class="align-right"><%= bundle.utility.weiToEth(Math.abs(trade.amount), bundle.DecentrEx.getDivisor(selectedToken)) %></td>
           <td class="align-right"><%= bundle.utility.weiToEth(Math.abs(trade.amount)*trade.price * bundle.DecentrEx.getDivisor(selectedBase)/bundle.DecentrEx.getDivisor(selectedToken), bundle.DecentrEx.getDivisor(selectedBase)) %></td>
-          <td class="align-right padding-right"><%= trade.price.toNumber().toFixed(5) %></td>
+          <td class="align-right padding-right"><%= trade.price.toNumber().toFixed(9) %></td>
         </tr>
       <% } else if (event.deposit) { %>
         <% deposit = event.deposit %>
