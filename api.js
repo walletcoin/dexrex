@@ -1255,7 +1255,7 @@ API.formatOrder = function formatOrder(order, token, base) {
       } ${
       token.name
       } @ ${
-      order.price.toNumber().toFixed(5)
+      order.price.toNumber().toFixed(9)
       } ${
       token.name
       }/${
@@ -1267,7 +1267,7 @@ API.formatOrder = function formatOrder(order, token, base) {
       } ${
       token.name
       } @ ${
-      order.price.toNumber().toFixed(5)
+      order.price.toNumber().toFixed(9)
       } ${
       token.name
       }/${
