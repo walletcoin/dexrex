@@ -2050,6 +2050,7 @@ module.exports = {
 { token: 'INS', base: 'ETH' },
 { token: 'INT', base: 'ETH' },
 { token: 'INXT', base: 'ETH' },
+{ token: 'IPY', base: 'ETH' },
 { token: 'IQT', base: 'ETH' },
 { token: 'ITS', base: 'ETH' },
 { token: 'ITT', base: 'ETH' },
