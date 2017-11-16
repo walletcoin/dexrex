@@ -7,6 +7,7 @@
 <priority>0.8</priority>
 </url>
 <url><loc>https://decentrex.com/#0ED-ETH</loc></url>
+<url><loc>https://decentrex.com/#0ED-ETH</loc></url>
 <url><loc>https://decentrex.com/#10MT-ETH</loc></url>
 <url><loc>https://decentrex.com/#10MTI-ETH</loc></url>
 <url><loc>https://decentrex.com/#1BIT-ETH</loc></url>
@@ -51,6 +52,7 @@
 <url><loc>https://decentrex.com/#AUA-ETH</loc></url>
 <url><loc>https://decentrex.com/#AVT-ETH</loc></url>
 <url><loc>https://decentrex.com/#B2BX-ETH</loc></url>
+<url><loc>https://decentrex.com/#BALI-ETH</loc></url>
 <url><loc>https://decentrex.com/#BAS-ETH</loc></url>
 <url><loc>https://decentrex.com/#BAT-ETH</loc></url>
 <url><loc>https://decentrex.com/#BB-ETH</loc></url>
@@ -92,6 +94,7 @@
 <url><loc>https://decentrex.com/#BTH2-ETH</loc></url>
 <url><loc>https://decentrex.com/#BTM-ETH</loc></url>
 <url><loc>https://decentrex.com/#BTN-ETH</loc></url>
+<url><loc>https://decentrex.com/#BTSE-ETH</loc></url>
 <url><loc>https://decentrex.com/#BULX-ETH</loc></url>
 <url><loc>https://decentrex.com/#BUS-ETH</loc></url>
 <url><loc>https://decentrex.com/#BXC-ETH</loc></url>
@@ -135,6 +138,7 @@
 <url><loc>https://decentrex.com/#DDF-ETH</loc></url>
 <url><loc>https://decentrex.com/#DEEM-ETH</loc></url>
 <url><loc>https://decentrex.com/#DEEP-ETH</loc></url>
+<url><loc>https://decentrex.com/#DEER-ETH</loc></url>
 <url><loc>https://decentrex.com/#DEL-ETH</loc></url>
 <url><loc>https://decentrex.com/#DENT-ETH</loc></url>
 <url><loc>https://decentrex.com/#DET-ETH</loc></url>
@@ -193,6 +197,7 @@
 <url><loc>https://decentrex.com/#ENG-ETH</loc></url>
 <url><loc>https://decentrex.com/#ENJ-ETH</loc></url>
 <url><loc>https://decentrex.com/#ENO-ETH</loc></url>
+<url><loc>https://decentrex.com/#ENTRC-ETH</loc></url>
 <url><loc>https://decentrex.com/#EOS-ETH</loc></url>
 <url><loc>https://decentrex.com/#EPOSN-ETH</loc></url>
 <url><loc>https://decentrex.com/#EPOSY-ETH</loc></url>
@@ -207,7 +212,6 @@
 <url><loc>https://decentrex.com/#ETHG-ETH</loc></url>
 <url><loc>https://decentrex.com/#ETHP-ETH</loc></url>
 <url><loc>https://decentrex.com/#ETL-ETH</loc></url>
-<url><loc>https://decentrex.com/#ETRUST-ETH</loc></url>
 <url><loc>https://decentrex.com/#ETV-ETH</loc></url>
 <url><loc>https://decentrex.com/#EURB-ETH</loc></url>
 <url><loc>https://decentrex.com/#EUSD-ETH</loc></url>
@@ -222,6 +226,7 @@
 <url><loc>https://decentrex.com/#EZEC2-ETH</loc></url>
 <url><loc>https://decentrex.com/#FAM-ETH</loc></url>
 <url><loc>https://decentrex.com/#FAP-ETH</loc></url>
+<url><loc>https://decentrex.com/#FBL-ETH</loc></url>
 <url><loc>https://decentrex.com/#FBR-ETH</loc></url>
 <url><loc>https://decentrex.com/#FC-ETH</loc></url>
 <url><loc>https://decentrex.com/#FDM-ETH</loc></url>
@@ -275,6 +280,7 @@
 <url><loc>https://decentrex.com/#HST-ETH</loc></url>
 <url><loc>https://decentrex.com/#HUB-ETH</loc></url>
 <url><loc>https://decentrex.com/#HVN-ETH</loc></url>
+<url><loc>https://decentrex.com/#HYTV-ETH</loc></url>
 <url><loc>https://decentrex.com/#IBTC-ETH</loc></url>
 <url><loc>https://decentrex.com/#ICE-ETH</loc></url>
 <url><loc>https://decentrex.com/#ICN-ETH</loc></url>
@@ -283,9 +289,9 @@
 <url><loc>https://decentrex.com/#IETH-ETH</loc></url>
 <url><loc>https://decentrex.com/#IFT-ETH</loc></url>
 <url><loc>https://decentrex.com/#IND-ETH</loc></url>
+<url><loc>https://decentrex.com/#INS-ETH</loc></url>
 <url><loc>https://decentrex.com/#INT-ETH</loc></url>
 <url><loc>https://decentrex.com/#INXT-ETH</loc></url>
-<url><loc>https://decentrex.com/#IPY-ETH</loc></url>
 <url><loc>https://decentrex.com/#IQT-ETH</loc></url>
 <url><loc>https://decentrex.com/#ITS-ETH</loc></url>
 <url><loc>https://decentrex.com/#ITT-ETH</loc></url>
@@ -295,6 +301,7 @@
 <url><loc>https://decentrex.com/#JDI-ETH</loc></url>
 <url><loc>https://decentrex.com/#JET-ETH</loc></url>
 <url><loc>https://decentrex.com/#JS-ETH</loc></url>
+<url><loc>https://decentrex.com/#JWT-ETH</loc></url>
 <url><loc>https://decentrex.com/#KEY-ETH</loc></url>
 <url><loc>https://decentrex.com/#KICK-ETH</loc></url>
 <url><loc>https://decentrex.com/#KIN-ETH</loc></url>
@@ -331,9 +338,11 @@
 <url><loc>https://decentrex.com/#MDT-ETH</loc></url>
 <url><loc>https://decentrex.com/#MGO-ETH</loc></url>
 <url><loc>https://decentrex.com/#MGX-ETH</loc></url>
+<url><loc>https://decentrex.com/#MINT-ETH</loc></url>
 <url><loc>https://decentrex.com/#MKR-ETH</loc></url>
 <url><loc>https://decentrex.com/#MLK-ETH</loc></url>
 <url><loc>https://decentrex.com/#MLN-ETH</loc></url>
+<url><loc>https://decentrex.com/#MOAC-ETH</loc></url>
 <url><loc>https://decentrex.com/#MOD-ETH</loc></url>
 <url><loc>https://decentrex.com/#MOL-ETH</loc></url>
 <url><loc>https://decentrex.com/#MPESA-ETH</loc></url>
@@ -345,6 +354,7 @@
 <url><loc>https://decentrex.com/#MTL-ETH</loc></url>
 <url><loc>https://decentrex.com/#MTP-ETH</loc></url>
 <url><loc>https://decentrex.com/#MVC-ETH</loc></url>
+<url><loc>https://decentrex.com/#MVT-ETH</loc></url>
 <url><loc>https://decentrex.com/#MXX-ETH</loc></url>
 <url><loc>https://decentrex.com/#MyB-ETH</loc></url>
 <url><loc>https://decentrex.com/#MYST-ETH</loc></url>
@@ -352,6 +362,7 @@
 <url><loc>https://decentrex.com/#NCH-ETH</loc></url>
 <url><loc>https://decentrex.com/#NDC-ETH</loc></url>
 <url><loc>https://decentrex.com/#NEBO-ETH</loc></url>
+<url><loc>https://decentrex.com/#NEOG-ETH</loc></url>
 <url><loc>https://decentrex.com/#NET-ETH</loc></url>
 <url><loc>https://decentrex.com/#NEWB-ETH</loc></url>
 <url><loc>https://decentrex.com/#NIH-ETH</loc></url>
@@ -380,6 +391,7 @@
 <url><loc>https://decentrex.com/#PIX-ETH</loc></url>
 <url><loc>https://decentrex.com/#PKT-ETH</loc></url>
 <url><loc>https://decentrex.com/#PLBT-ETH</loc></url>
+<url><loc>https://decentrex.com/#PLC-ETH</loc></url>
 <url><loc>https://decentrex.com/#PLR-ETH</loc></url>
 <url><loc>https://decentrex.com/#PLU-ETH</loc></url>
 <url><loc>https://decentrex.com/#PLX-ETH</loc></url>
@@ -395,6 +407,7 @@
 <url><loc>https://decentrex.com/#PPP-ETH</loc></url>
 <url><loc>https://decentrex.com/#PPT-ETH</loc></url>
 <url><loc>https://decentrex.com/#PPT2-ETH</loc></url>
+<url><loc>https://decentrex.com/#PRFT-ETH</loc></url>
 <url><loc>https://decentrex.com/#PRG-ETH</loc></url>
 <url><loc>https://decentrex.com/#PRO-ETH</loc></url>
 <url><loc>https://decentrex.com/#PRS-ETH</loc></url>
@@ -499,6 +512,7 @@
 <url><loc>https://decentrex.com/#TSS-ETH</loc></url>
 <url><loc>https://decentrex.com/#TWIT-ETH</loc></url>
 <url><loc>https://decentrex.com/#UETL-ETH</loc></url>
+<url><loc>https://decentrex.com/#UFR-ETH</loc></url>
 <url><loc>https://decentrex.com/#UGT-ETH</loc></url>
 <url><loc>https://decentrex.com/#UKG-ETH</loc></url>
 <url><loc>https://decentrex.com/#UMC-ETH</loc></url>
@@ -534,8 +548,8 @@
 <url><loc>https://decentrex.com/#YESTERDAY-ETH</loc></url>
 <url><loc>https://decentrex.com/#ZAP-ETH</loc></url>
 <url><loc>https://decentrex.com/#ZCG-ETH</loc></url>
+<url><loc>https://decentrex.com/#ZDR-ETH</loc></url>
 <url><loc>https://decentrex.com/#ZIP-ETH</loc></url>
 <url><loc>https://decentrex.com/#ZRX-ETH</loc></url>
 <url><loc>https://decentrex.com/#ZSC-ETH</loc></url>
-
 </urlset>
