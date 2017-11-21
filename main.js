@@ -239,7 +239,7 @@ DecentrEx.prototype.createAccount = function createAccount() {
   const pk = newAccount.privateKey;
   this.addAccount(addr, pk);
   this.alertDialog(
-    `You just created an Ethereum account: ${addr}<br /><br />Please BACKUP the private key for this account: ${pk}`);
+    `You just created an Ethereum account: <pre>${addr}</pre> Please BACKUP the private key for this account: <pre>${pk}</pre>`);
   ga('send', {
     hitType: 'event',
     eventCategory: 'Action',
